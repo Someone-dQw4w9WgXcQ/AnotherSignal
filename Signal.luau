@@ -27,6 +27,16 @@ function Signal.new(): Signal
 	}, Signal)
 end
 
+function Signal:Fire(...)
+	local item = self._handlerListHead
+	while item do
+		if item.Connected then
+			spawnWithReuse(item._Function, ...)
+		end
+		item = item._next
+	end
+end
+
 function Signal:Connect(callback: func): Connection
 	local connection = {
 		Connected = true,
@@ -46,7 +56,7 @@ function Signal:Connect(callback: func): Connection
 	return connection
 end
 
-function Signal:Once(callback: func)
+function Signal:Once(callback: func): Connection
 	local connection
 	connection = {
 		Connected = true,
@@ -84,25 +94,6 @@ function Signal:Once(callback: func)
 	return connection
 end
 
-function Signal:DisconnectAll()
-	self._handlerListHead = false
-end
-
-function Signal:Destroy()
-	table.clear(self)
-	setmetatable(self, nil)
-end
-
-function Signal:Fire(...)
-	local item = self._handlerListHead
-	while item do
-		if item.Connected then
-			spawnWithReuse(item._Function, ...)
-		end
-		item = item._next
-	end
-end
-
 function Signal:Wait()
 	local waitingThread = coroutine.running()
 	local connection
@@ -129,6 +120,15 @@ function Signal:Wait()
 		_next = false
 	}
 	return coroutine.yield()
+end
+
+function Signal:DisconnectAll()
+	self._handlerListHead = false
+end
+
+function Signal:Destroy()
+	table.clear(self)
+	setmetatable(self, nil)
 end
 
 type func = (...any) -> ()

@@ -115,7 +115,7 @@ function Signal:Wait()
 				end
 			end
 			connection = nil
-			coroutine.resume(waitingThread, ...)
+			task.spawn(waitingThread, ...)
 		end,
 		_next = false
 	}

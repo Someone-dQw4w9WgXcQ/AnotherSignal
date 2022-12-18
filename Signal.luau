@@ -1,5 +1,5 @@
 -- ThreadPool dependency: https://github.com/Someone-dQw4w9WgXcQ/Lua-ThreadPool
-local spawnWithReuse = require(game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("ThreadPool"))
+local spawnWithReuse = require(game:GetService("ReplicatedStorage"):WaitForChild("ThreadPool"))
 
 local function disconnect(self: Connection)
 	self.Connected = false

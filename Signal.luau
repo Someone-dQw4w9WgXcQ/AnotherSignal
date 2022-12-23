@@ -1,3 +1,5 @@
+--!strict
+
 -- ThreadPool dependency: https://github.com/Someone-dQw4w9WgXcQ/Lua-ThreadPool
 local spawnWithReuse = require(game:GetService("ReplicatedStorage"):WaitForChild("ThreadPool"))
 
@@ -38,7 +40,7 @@ function Signal:Fire(...)
 end
 
 function Signal:Connect(callback: func): Connection
-	local connection = {
+	local connection: Connection = {
 		Connected = true,
 		Signal = self,
 		_Function = callback,
@@ -57,7 +59,7 @@ function Signal:Connect(callback: func): Connection
 end
 
 function Signal:Once(callback: func): Connection
-	local connection
+	local connection: Connection
 	connection = {
 		Connected = true,
 		Signal = self,
@@ -96,7 +98,7 @@ end
 
 function Signal:Wait()
 	local waitingThread = coroutine.running()
-	local connection
+	local connection: Connection
 	connection = {
 		Connected = true,
 		Signal = self,
@@ -118,7 +120,14 @@ function Signal:Wait()
 			task.spawn(waitingThread, ...)
 		end,
 		_next = false
-	}
+	}:: Connection
+	local _handlerListHead = self._handlerListHead
+	if _handlerListHead then
+		connection._next = _handlerListHead
+		self._handlerListHead = connection
+	else
+		self._handlerListHead = connection
+	end
 	return coroutine.yield()
 end
 
@@ -133,12 +142,12 @@ end
 
 type func = (...any) -> ()
 
-export type Signal = typeof(setmetatable({}:: {_handlerListHead: false | Connection}, Signal))
+export type Signal = typeof(setmetatable({}:: {_handlerListHead: any}, Signal))
 export type Connection = {
 	Connected: boolean,
 	Signal: Signal,
 	_Function: func,
-	_next: false | Connection,
+	_next: Connection | false,
 
 	Disconnect: typeof(disconnect)
 }
